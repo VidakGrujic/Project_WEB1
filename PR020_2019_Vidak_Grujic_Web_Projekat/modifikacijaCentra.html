@@ -1,0 +1,139 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        label {
+            font-size: 16px
+        }
+    </style>
+    <script src="Scripts/jquery-3.3.1.js"></script>
+    <link rel="stylesheet" href="Content/bootstrap.css" />
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var jsonString = sessionStorage.getItem('vlasnik');
+            var vlasnik = JSON.parse(jsonString);
+            if (vlasnik !== null) {
+                var idFitnesCentra = sessionStorage.getItem('idCentraModifikacija');
+
+                $.get("api/Detalji/GetFCDetaljno", { 'idFitnesCentra': idFitnesCentra }, function (data, status) {
+                    $('#nazivFCIzmena').val(data.Naziv);
+                    $('#adresaFCIzmena').val(data.Adresa);
+                    $('#mesecnaFCIzmena').val(data.CenaMesecneClanarine);
+                    $('#godisnjaFCIzmena').val(data.CenaGodisnjeClanarine);
+                    $('#grupniFCIzmena').val(data.CenaGrupnogTreninga);
+                    $('#jedanFCIzmena').val(data.CenaJednogTreninga);
+                    $('#personalniFCIzmena').val(data.CenaTreningaSaPersonalnimTrenerom);
+                });
+
+
+
+                $('#btnIzmeniFC').click(function () {
+                    var nazivFCIzmena = $('#nazivFCIzmena').val();
+                    if (nazivFCIzmena.length === 0) {
+                        alert('Morate uneti naziv fitnes centra');
+                        return;
+                    }
+                    var adresaFCIzmena = $('#adresaFCIzmena').val();
+                    if (adresaFCIzmena.length === 0) {
+                        alert('Morate uneti adresu fitnes centra');
+                        return;
+                    }
+                    var mesecnaFCIzmena = $('#mesecnaFCIzmena').val();
+                    if (mesecnaFCIzmena.length === 0) {
+                        alert('Morate uneti mesecnu cenu clanarine');
+                        return;
+                    }
+                    var godisnjaFCIzmena = $('#godisnjaFCIzmena').val();
+                    if (godisnjaFCIzmena.length === 0) {
+                        alert('Morate uneti godisnju cenu clanarine');
+                        return;
+                    }
+                    var grupniFCIzmena = $('#grupniFCIzmena').val();
+                    if (grupniFCIzmena.length === 0) {
+                        alert('Morate uneti grupnu cenu treninga');
+                        return;
+                    }
+                    var jedanFCIzmena = $('#jedanFCIzmena').val();
+                    if (jedanFCIzmena.length === 0) {
+                        alert('Morate uneti cenu jednog treninga');
+                        return;
+                    }
+                    var personalniFCIzmena = $('#personalniFCIzmena').val();
+                    if (personalniFCIzmena.length === 0) {
+                        alert('Morate uneti cenu treninga sa personalnim');
+                        return;
+                    }
+
+                    $.ajax({
+                        type: "PUT",
+                        url: "api/Vlasnik/ModificateFitnesCentar?idFitnesCentra=" + idFitnesCentra,
+                        data: {
+                            'Naziv': nazivFCIzmena,
+                            'Adresa': adresaFCIzmena,
+                            'CenaMesecneClanarine': mesecnaFCIzmena,
+                            'CenaGodisnjeClanarine': godisnjaFCIzmena,
+                            'CenaJednogTreninga': jedanFCIzmena,
+                            'CenaGrupnogTreninga': grupniFCIzmena,
+                            'CenaTreningaSaPersonalnimTrenerom': personalniFCIzmena
+                        },
+                        success: function (result) {
+                            alert('Fitnes centar je uspesno izmenjen');
+                            $(location).attr('href', 'radFitnesCentri.html');
+                        },
+                        error: function (xhr) {
+                            alert('Error: ' + xhr.responseText);
+                            $(location).attr('href', 'radFitnesCentri.html');
+                        }
+                    });
+                });
+
+
+            } else {
+                alert("Morate se logovati kao vlasnik");
+                $(location).attr('href', 'login.html');
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="navbar-collapse collapse" style="background-color:lightgrey">
+        <ul class="nav navbar-nav">
+            <li><a href="vlasnik.html">Povratak na pocetnu stranicu</a></li>
+            <li><a href="radFitnesCentri.html">Povratak na prethodnu stranicu</a></li>
+        </ul>
+    </div>
+    <div id="izmena" style="float:left; width:50%; margin:16px">
+
+        <h1 style="color:steelblue">Izmenite podatke fitnes centra</h1><br/>
+        <label><b>Unesite naziv fitnes centra</b></label><br />
+        <input type="text" name="nazivFCIzmena" id="nazivFCIzmena" /><br /><br />
+
+        <label><b>Unesite adresu fitnes centra</b></label><br />
+        <input type="text" name="adresaFCIzmena" id="adresaFCIzmena" /> <br /><br />
+
+        <label><b>Unesite cenu mesecne clanarine</b></label><br />
+        <input type="number" name="mesecnaFCIzmena" id="mesecnaFCIzmena" /><br /><br />
+
+        <label><b>Unesite cenu godisnje clanarine</b></label><br />
+        <input type="number" name="godisnjaFCIzmena" id="godisnjaFCIzmena" /><br /><br />
+
+        <label><b>Unesite cenu grupnog treninga</b></label><br />
+        <input type="number" name="grupniFCIzmena" id="grupniFCIzmena" /><br /><br />
+
+        <label><b>Unesite cenu jednog treninga</b></label><br />
+        <input type="number" name="jedanFCIzmena" id="jedanFCIzmena" /><br /><br />
+
+        <label><b>Unesite cenu treninga sa personalnim trenerom</b></label><br />
+        <input type="number" name="personalniFCIzmena" id="personalniFCIzmena" /><br /><br />
+
+        <input type="button" class="btn-primary" id="btnIzmeniFC" value="Izmenite fitnes centar" />
+
+    </div>
+
+
+
+
+</body>
+</html>

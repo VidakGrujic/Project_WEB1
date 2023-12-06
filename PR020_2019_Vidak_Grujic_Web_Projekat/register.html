@@ -1,0 +1,142 @@
+﻿    <!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="Scripts/jquery-3.3.1.js"></script>
+    <link rel="stylesheet" href="Content/bootstrap.css" />
+    <style type="text/css">
+        .div1 {
+            text-align: center;
+        }
+
+        .polje {
+            width: 20%;
+            padding: 5px 16px;
+            margin: 0px
+        }
+
+        label {
+            font-size: 20px
+        }
+    </style>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#btnRegistruj').click(function () {
+                var korisnickoIme = $('#kIme').val();
+                if (korisnickoIme.length === 0) {
+                    alert("Morate uneti korisnicko ime");
+                    return;
+                }
+
+                var lozinka = $('#lozinka').val();
+                if (lozinka.length === 0) {
+                    alert("Morate uneti lozinku");
+                    return;
+                }
+
+                var ime = $('#ime').val();
+                if (ime.length === 0) {
+                    alert("Morate uneti ime");
+                    return;
+                }
+
+                var prezime = $('#prezime').val();
+                if (prezime.length === 0) {
+                    alert("Morate uneti prezime");
+                    return;
+                }
+
+                var pol = $('#pol').val();
+                if (pol.length === 0) {
+                    alert("Morate uneti pol");
+                    return;
+                }
+
+                var email = $('#email').val();
+                if (email.length === 0) {
+                    alert("Morate uneti email");
+                    return;
+                }
+
+                var datumRodjenja = $('#datumRodjenja').val();
+                if (!datumRodjenja) {
+                    alert("Morate uneti datum rodjenja");
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "api/Autentifikacija/Register",
+                    data:
+                    {
+                        'KorisnickoIme': korisnickoIme,
+                        'Lozinka': lozinka,
+                        'Ime': ime,
+                        'Prezime': prezime,
+                        'Pol': pol,
+                        'email': email,
+                        'DatumRodjenja': datumRodjenja
+                    },
+                    success: function (result) {
+                        alert('Korisnik je dodat');
+                        sessionStorage.setItem('posetilac', JSON.stringify(result));
+                        $(location).attr("href", "posetilac.html");
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert("Error: " + xhr.responseText);
+                    }
+                });
+            });
+
+        });
+
+
+
+
+    </script>
+</head>
+<body>
+    <div class="navbar-collapse collapse" style="background-color:lightgrey; margin:0px">
+        <ul class="nav navbar-nav">
+            <li><a href="index.html" style="color:steelblue">Povratak na pocetnu stranicu</a></li>
+        </ul>
+    </div>
+    <div class="div1">
+        <h1 style="font-size:50px; color:steelblue">Registrujte se</h1><br/>
+        <label for="korisnickoIme"><b>Korisnicko Ime</b></label><br />
+        <input class="polje" type="text" placeholder="Unesite korisnicko ime..." name="korisnickoIme" id="kIme"> <br /><br />
+
+        <label for="lozinka"><b>Lozinka</b></label><br />
+        <input class="polje" type="password" placeholder="Unesite lozinku..." name="lozinka" id="lozinka" /><br /><br />
+
+        <label for="ime"><b>Ime</b></label><br />
+        <input class="polje" type="text" placeholder="Unesite ime..." name="ime" id="ime" /><br /><br />
+
+        <label for="prezime"><b>Prezime</b></label><br />
+        <input class="polje" type="text" placeholder="Unesite prezime..." name="prezime" id="prezime" /><br /><br />
+
+        <label for="pol"><b>Odaberite pol</b></label><br />
+        <input class="polje" list="polovi" name="pol" id="pol" />
+        <datalist id="polovi">
+            <option value="Muski"></option>
+            <option value="Zenski"></option>
+        </datalist><br /><br />
+
+        <label for="email"><b>Email</b></label><br />
+        <input class="polje" type="email" name="email" placeholder="Unesite email" id="email" /><br /><br />
+
+        <label for="datum"><b>Datum Rodjenja</b></label><br />
+        <input class="polje" type="date" name="datumRodjenja" placeholder="Unesite datum" id="datumRodjenja" /><br /><br/>
+
+        <input class="btn-primary" style="padding:8px 26px; margin-bottom:40px" type="button" id="btnRegistruj" value="Registrujte se"><br />
+
+
+    </div>
+
+
+
+
+
+</body>
+</html>

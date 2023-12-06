@@ -1,0 +1,152 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="Scripts/jquery-3.3.1.js"></script>
+    <style>
+        label{
+            font-size:16px
+        }
+    </style>
+    <link rel="stylesheet" href="Content/bootstrap.css" />
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var jsonString = sessionStorage.getItem('vlasnik');
+            var vlasnik = JSON.parse(jsonString);
+            if (vlasnik !== null) {
+                $('#btnRegistruj').click(function () {
+                    var korisnickoIme = $('#kIme').val();
+                    if (korisnickoIme.length === 0) {
+                        alert("Morate uneti korisnicko ime");
+                        return;
+                    }
+
+                    var lozinka = $('#lozinka').val();
+                    if (lozinka.length === 0) {
+                        alert("Morate uneti lozinku");
+                        return;
+                    }
+
+                    var ime = $('#ime').val();
+                    if (ime.length === 0) {
+                        alert("Morate uneti ime");
+                        return;
+                    }
+
+                    var prezime = $('#prezime').val();
+                    if (prezime.length === 0) {
+                        alert("Morate uneti prezime");
+                        return;
+                    }
+
+                    var pol = $('#pol').val();
+                    if (pol.length === 0) {
+                        alert("Morate uneti pol");
+                        return;
+                    }
+
+                    var email = $('#email').val();
+                    if (email.length === 0) {
+                        alert("Morate uneti email");
+                        return;
+                    }
+
+                    var datumRodjenja = $('#datumRodjenja').val();
+                    if (!datumRodjenja) {
+                        alert("Morate uneti datum rodjenja");
+                        return;
+                    }
+
+                    var nazivFitnesCentra = sessionStorage.getItem('NazivFitnesCentarAddTrener');
+
+                    $.ajax({
+                        type: "POST",
+                        url: "api/Vlasnik/AddNewTrener",
+                        data:
+                        {
+                            'KorisnickoIme': korisnickoIme,
+                            'Lozinka': lozinka,
+                            'Ime': ime,
+                            'Prezime': prezime,
+                            'Pol': pol,
+                            'email': email,
+                            'DatumRodjenja': datumRodjenja,
+                            'NazivFitnesCentra': nazivFitnesCentra
+                        },
+                        success: function (result) {
+                            alert('Korisnik je dodat');
+                            $(location).attr("href", "radFitnesCentri.html");
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert("Error: " + xhr.responseText);
+                        }
+                    });
+                });
+
+
+
+
+
+            } else {
+                alert("Morate se logovati kao vlasnik");
+                $(location).attr('href', 'login.html');
+            }
+
+
+
+
+        });
+
+
+
+    </script>
+</head>
+<body>
+    <div class="navbar-collapse collapse" style="background-color:lightgrey">
+        <ul class="nav navbar-nav">
+            <li><a href="vlasnik.html">Povratak na pocetnu stranicu</a></li>
+            <li><a href="radFitnesCentri.html">Povratak na prethodnu stranicu</a></li>
+        </ul>
+    </div>
+    <div style="float:left; width:50%; margin:16px">
+        <h1 style="color:steelblue">Dodajte trenera</h1><br/>
+
+
+        <label for="korisnickoIme"><b>Korisnicko ime trenera</b></label><br />
+        <input type="text" name="korisnickoIme" id="kIme"> <br /><br />
+
+        <label for="lozinka"><b>Lozinka trenera</b></label><br />
+        <input type="password" name="lozinka" id="lozinka" /><br /><br />
+
+        <label for="ime"><b>Ime trenera</b></label><br />
+        <input type="text" name="ime" id="ime" /><br /><br />
+
+        <label for="prezime"><b>Prezime trenera</b></label><br />
+        <input type="text" name="prezime" id="prezime" /><br /><br />
+
+        <label for="pol"><b>Odaberite pol trenera</b></label><br />
+        <input list="polovi" name="pol" id="pol" />
+        <datalist id="polovi">
+            <option value="Muski"></option>
+            <option value="Zenski"></option>
+        </datalist><br /><br />
+
+        <label for="email"><b>Email trenera</b></label><br />
+        <input type="email" name="email" id="email" /><br /><br />
+
+        <label for="datum"><b>Datum rodjenja trenera</b></label><br />
+        <input type="date" name="datumRodjenja" id="datumRodjenja" /><br /><br/>
+        
+        <input class="btn-primary" type="button" id="btnRegistruj" value="Dodajte trenera"><br />
+
+
+    </div>
+
+
+
+
+
+
+</body>
+</html>

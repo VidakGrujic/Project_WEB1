@@ -1,0 +1,288 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="Scripts/jquery-3.3.1.js"></script>
+    <link rel="stylesheet" href="Content/bootstrap.css" />
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var jsonString = sessionStorage.getItem('vlasnik');
+            var vlasnik = JSON.parse(jsonString);
+
+            if (vlasnik !== null) {
+                function tabelaFitnesCentara(data) {
+                    var tableOfFitnesCentri = '<table border="1" class="table-condensed">';
+                    tableOfFitnesCentri += '<tr><th>Naziv</th><th>Adresa</th><th>Godina Otvaranja</th><th>Akcija</th></tr>';
+                    for (element in data) {
+                        let centar = '<td>' + data[element].Naziv + '</td>';
+                        centar += '<td>' + data[element].Adresa + '</td>';
+                        centar += '<td>' + data[element].GodinaOtvaranja + '</td>';
+                        centar += '<td><button class="btnDetalji" name="' + data[element].IdFitnesCentra + '">Detalji</button></td>';
+                        tableOfFitnesCentri += '<tr>' + centar + '</tr>';
+                    }
+                    tableOfFitnesCentri += '</table>';
+                    $('#fitnesCentri').html(tableOfFitnesCentri);
+                    console.log('fitnes centri ucitani');
+                }
+
+                $.get("/api/Neprijavljeni/GetSortedFitnesCentreByNaziv", function (data, status) {
+                    tabelaFitnesCentara(data);
+                });
+
+
+                $.get('/api/Vlasnik/GetFitnesCentreVlasnika', function (data, status) {
+                    var tabelaCentara = '<table border="1" class="table-condensed">';
+                    tabelaCentara += '<tr><th>Naziv</th><th>Adresa</th><th>Akcija</th></tr>';
+                    for (element in data) {
+                        let fc = '<td>' + data[element].Naziv + '</td>';
+                        fc += '<td>' + data[element].Adresa + '</td>';
+                        fc += '<td><button class="btnKomentar" name="' + data[element].IdFitnesCentra + '">Pogledajte komentare</button>';
+                        tabelaCentara += '<tr>' + fc + '</tr>';
+                    }
+                    tabelaCentara += '</table>';
+                    $('#fcKomentari').html(tabelaCentara);
+
+
+                });
+
+                $(document).on('click', '.btnKomentar', function () {
+                    let idFitnesCentra = $(this).attr('name');
+                    sessionStorage.setItem('idFitnesCentraKomentari', idFitnesCentra);
+                    $(location).attr('href', 'upravljanjeKomentarima.html');
+                });
+
+
+                $('#btnPretraziNaziv').click(function () {
+                    let naziv = $('#pretragaNaziv').val();
+                    if (naziv.length === 0) {
+                        alert('Unesite naziv fitnes centra!');
+                        return;
+                    }
+
+                    $.get('api/Neprijavljeni/FindFitnesCentreByNaziv', { Naziv: naziv }, function (data, status) {
+                        tabelaFitnesCentara(data);
+                    });
+                });
+
+                $('#btnPretraziAdresa').click(function () {
+                    let adresa = $('#pretragaAdresa').val();
+                    if (adresa.length === 0) {
+                        alert('Unesite adresu');
+                        return
+                    }
+
+                    $.get('api/Neprijavljeni/FindFitnesCentreByAdresa', { Adresa: adresa }, function (data, status) {
+                        tabelaFitnesCentara(data);
+                    });
+                });
+
+                $('#btnPretraziGodina').click(function () {
+                    let min = $('#min').val();
+                    if (min.length === 0) {
+                        alert('Morate uneti minimalnu granicu');
+                    }
+                    let max = $('#max').val();
+                    if (max.length === 0) {
+                        alert('Morate uneti maksimalnu granicu');
+                    }
+
+                    if (parseInt(min) > parseInt(max)) {
+                        alert('Minimalna granica ne moze biti veca od maksimalne');
+                        return;
+                    }
+
+
+                    $.get('api/Neprijavljeni/FindFitnesCentreByGodinaOtvaranja',
+                        {
+                            godinaOtvaranjaMin: min,
+                            godinaOtvaranjaMax: max
+                        },
+                        function (data, status) {
+                            tabelaFitnesCentara(data);
+                        });
+                });
+
+                $('#btnPretraziKomb').click(function () {
+                    let naziv = $('#pretragaNazivKomb').val();
+                    let adresa = $('#pretragaAdresaKomb').val();
+                    let min = $('#minKomb').val();
+                    let max = $('#maxKomb').val();
+
+                    if ((min.length !== 0 && max.length === 0) || (min.length === 0 && max.length !== 0)) {
+                        alert('Morate uneti obe vrednosti granica pretrage');
+                        return;
+                    }
+                    if (parseInt(min) > parseInt(max)) {
+                        alert('Minimalna granica ne moze biti veca od maksimalne');
+                        return;
+                    }
+
+
+                    $.post('/api/Neprijavljeni/FindByAllCategories',
+                        {
+                            'Naziv': naziv,
+                            'Adresa': adresa,
+                            'GodinaOtvaranjaMin': min,
+                            'GodinaOtvaranjaMax': max
+                        },
+                        function (result) {
+                            tabelaFitnesCentara(result);
+                        });
+                });
+
+                $('#btnSortiranjeNaziv').click(function () {
+                    let tipSortiranja = $('input[name = "tipSortiranjaN"]:checked').val();
+                    $.get('api/Neprijavljeni/SortFCByNaziv', { 'tipSortiranja': tipSortiranja },
+                        function (data, status) {
+                            tabelaFitnesCentara(data);
+
+                        });
+                });
+
+                $('#btnSortiranjeAdresa').click(function () {
+                    let tipSortiranja = $('input[name = "tipSortiranjaA"]:checked').val();
+                    $.get('api/Neprijavljeni/SortFCByAdresa', { 'tipSortiranja': tipSortiranja },
+                        function (data, status) {
+                            tabelaFitnesCentara(data);
+                        });
+                });
+
+                $('#btnSortiranjeGodina').click(function () {
+                    let tipSortiranja = $('input[name = "tipSortiranjaG"]:checked').val();
+                    $.get('api/Neprijavljeni/SortFCByGodinaOtvaranja', { 'tipSortiranja': tipSortiranja },
+                        function (data, status) {
+                            tabelaFitnesCentara(data);
+                        });
+                });
+
+                $(document).on('click', '.btnDetalji', function () {
+                    let idFitnesCentra = $(this).attr('name');
+                    sessionStorage.setItem('idFitnesCentra', idFitnesCentra);
+
+                    //posto ide na detalji.html mora da znamo ko je otisao, vlasnik ili trener,
+                    //jer detalji mogu da idu i na index.html
+                    sessionStorage.setItem('korisnikDetalji', JSON.stringify(vlasnik));
+
+                    $(location).attr("href", "detalji.html");
+
+                });
+
+                $('#btnBlock').click(function () {
+                    let kIme = $('#kImeBlock').val();
+                    if (kIme.length === 0) {
+                        alert('Morate uneti korisnicko ime trenera');
+                        return;
+                    }
+
+                    $.ajax({
+                        type: "PUT",
+                        url: "api/Vlasnik/BlockTrener?korisnickoIme=" + kIme,
+                        success: function (result) {
+                            alert(result);
+                            $(location).attr('href', 'vlasnik.html');
+                        },
+                        error: function (xhr) {
+                            alert("Error: " + xhr.responseText);
+                            $(location).attr('href', 'vlasnik.html');
+                        }
+                    });
+
+                });
+
+                $('#urediProfil').click(function () {
+                    sessionStorage.setItem('korisnikIzmena', JSON.stringify(vlasnik));
+                    $(location).attr('href', 'urediProfil.html');
+                });
+
+                $('#logout').click(function () {
+                    $.get('api/Autentifikacija/Logout', function (data, status) {
+                        alert(data);
+                        $(location).attr('href', 'index.html');
+                    });
+
+
+                });
+
+            } else {
+                alert("Morate se logovati kao vlasnik");
+                $(location).attr('href', 'login.html');
+            }
+
+        });
+
+    </script>
+</head>
+<body>
+    <div class="navbar-collapse collapse" style="background-color:lightgrey">
+        <ul class="nav navbar-nav">
+            <li><a href="#" id="urediProfil" style="color:steelblue">Uredite profil </a></li>
+            <li><a href="#" id="logout" style="color:steelblue">Odjavite se</a></li>
+            <li><a href="radFitnesCentri.html">Upravljajte fitnes centrima</a></li>
+        </ul>
+    </div>
+
+
+
+   
+    <div style="float:left; width:40%; margin:16px">
+        <h1 style="color:steelblue">Fitnes Centri</h1><br />
+        <div id="fitnesCentri"></div><br />
+        <h3>Pretraga po nazivu</h3>
+        <label for="Naziv">Unesite Naziv: </label> <input type="text" id="pretragaNaziv" name="Naziv" /> <br />
+        <input class="btn-primary" type="button" value="Pretrazi" id="btnPretraziNaziv" /> <br />
+
+        <h3>Pretraga po adresi</h3>
+        <label for="Adresa">Unesite adresu: </label> <input type="text" id="pretragaAdresa" name="Adresa" /> <br />
+        <input class="btn-primary" type="button" value="Pretrazi" id="btnPretraziAdresa" /><br />
+
+        <h3>Pretraga po godini</h3>
+        <label for="Minimalna granica">Unesite minimalnu granicu godine: </label> <input type="number" id="min" name="godinaOtvaranjaMin" /><br />
+        <label for="Maksimalna granica">Unesite maksimalnu granicu godine: </label> <input type="number" id="max" name="godinaOtvaranjaMax" /><br />
+        <input class="btn-primary" type="button" value="Pretrazi" id="btnPretraziGodina" />
+
+        <h3>Kombinovana pretraga</h3>
+        <label for="Naziv">Unesite Naziv: </label> <input type="text" id="pretragaNazivKomb" name="Naziv" /> <br />
+        <label for="Adresa">Unesite adresu: </label> <input type="text" id="pretragaAdresaKomb" name="Adresa" /> <br />
+        <label for="Minimalna granica">Unesite minimalnu granicu godine: </label> <input type="number" id="minKomb" name="godinaOtvaranjaMin" /><br />
+        <label for="Maksimalna granica">Unesite maksimalnu granicu godine: </label> <input type="number" id="maxKomb" name="godinaOtvaranjaMax" /><br />
+        <input class="btn-primary" type="button" value="Pretrazi" id="btnPretraziKomb" />
+
+        <h3>Sortiranje po Nazivu</h3>
+        <input type="radio" name="tipSortiranjaN" value="rastuce" checked />Rastuce&nbsp;&nbsp;
+        <input type="radio" name="tipSortiranjaN" value="opadajuce" />Opadajuce
+        <input class="btn-primary" type="button" id="btnSortiranjeNaziv" value="Sortiraj" />
+
+        <h3>Sortiranje po Adresi</h3>
+        <input type="radio" name="tipSortiranjaA" value="rastuce" checked />Rastuce&nbsp;&nbsp;
+        <input type="radio" name="tipSortiranjaA" value="opadajuce" />Opadajuce
+        <input class="btn-primary" type="button" id="btnSortiranjeAdresa" value="Sortiraj" />
+
+        <h3>Sortiranje po godini</h3>
+        <input type="radio" name="tipSortiranjaG" value="rastuce" checked />Rastuce&nbsp;&nbsp;
+        <input type="radio" name="tipSortiranjaG" value="opadajuce" />Opadajuce
+        <input class="btn-primary" type="button" id="btnSortiranjeGodina" value="Sortiraj" />
+    </div>
+    <div style="float:right; width:50%; margin:16px">
+        <div>
+            <h1 style="color:steelblue">Blokirajte trenera</h1><br/>
+            <label style="font-size: 18px"><b>Unesite korisnicko ime trenera</b></label><br />
+            <input type="text" name="kImeBlock" id="kImeBlock" /> <br /><br/>
+            <input class="btn-primary" type="button" name="btnBlock" id="btnBlock" value="Blokirajte trenera" />
+        </div>
+        <br /><br />
+        <div>
+            <h1 style="color:steelblue">Upravljajte komentarima u fitnes centrima</h1>
+            <div id="fcKomentari"></div>
+
+
+        </div>
+
+
+    </div>
+
+
+
+
+</body>
+</html>

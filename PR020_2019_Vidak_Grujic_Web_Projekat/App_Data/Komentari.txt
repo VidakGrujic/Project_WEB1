@@ -1,0 +1,4 @@
+88887777;33332222;11222333;Nema jace;5;True;False
+876345179;60606060;11222333;Sasvim zadovoljavajuce, sve proporuke;4;True;False	
+2019216924;33332222;11222333;ide gas;5;False;False
+END

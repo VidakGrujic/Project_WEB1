@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="Scripts/jquery-3.3.1.js"></script>
+    <link rel="stylesheet" href="Content/bootstrap.css" />
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var jsonString = sessionStorage.getItem('trener');
+            var trener = JSON.parse(jsonString);
+            if (trener !== null) {
+                var idGrupniTreningPregled = sessionStorage.getItem('idGrupniTreningPregled');
+
+                function grupniTreninzi(data) {
+                    var tabelaGT = '<table border="1" class="table-condensed">';
+                    var podaciGT = '';
+
+                    podaciGT += '<tr><th>Naziv</th><td>' + data.Naziv + '</td></tr>';
+                    podaciGT += '<tr><th>Tip treninga</th><td>' + data.TipTreninga + '</td></tr>'
+                    podaciGT += '<tr><th>Naziv fitnes centra</th><td>' + data.FitnesCentarOdrzavanja + '</td></tr>'
+                    podaciGT += '<tr><th>Datum i vreme odrzavanja</th><td>' + data.DatumIVremeTreninga + '</td></tr>'
+
+
+                    tabelaGT += podaciGT + '</table>';
+                    $('#grupniTrening').html(tabelaGT);
+                    console.log('Treninzi ucitani');
+                }
+
+                function tabelaPosetioci(data) {
+                    var tabelaPosetioci = '<table border="1" class="table-condensed">';
+                    tabelaPosetioci += '<tr><th>Korisnicko ime</th><th>Ime</th><th>Prezime</th><th>Email</th><th>Pol</th></tr>';
+                    for (element in data) {
+                        let posetilac = '<tr><td>' + data[element].KorisnickoIme + '</td>';
+                        posetilac += '<td>' + data[element].Ime + '</td>';
+                        posetilac += '<td>' + data[element].Prezime + '</td>';
+                        posetilac += '<td>' + data[element].Email + '</td>';
+                        posetilac += '<td>' + data[element].Pol + '</td></tr>';
+                        tabelaPosetioci += posetilac;
+                    }
+
+                    tabelaPosetioci += '</table>';
+                    $('#posetioci').html(tabelaPosetioci);
+                }
+
+
+                $.get("/api/Trener/GetTrening", { 'idGrupnogTreninga': idGrupniTreningPregled }, function (data, status) {
+                    grupniTreninzi(data);
+                });
+
+                $.get("/api/Trener/GetPosetioceByTrening", { 'IdTreninga': idGrupniTreningPregled }, function (data, status) {
+                    tabelaPosetioci(data);
+                });
+
+            } else {
+                alert("Morate se logovati kao trener");
+                $(location).attr('href', 'login.html');
+            }
+
+
+
+
+
+        });
+
+
+
+    </script>
+</head>
+<body>
+    <div class="navbar-collapse collapse" style="background-color:lightgrey">
+        <ul class="nav navbar-nav">
+            <li><a href="treninziRad.html">Povratak na prethodnu stranicu</a></li>
+            <li><a href="trener.html">Povratak na pocetnu stranicu</a></li>
+        </ul>
+    </div>
+    
+    <div style="float:left; width: 30%; margin:16px">
+        <h1 style="color:steelblue">Grupni trening</h1><br />
+        <div id="grupniTrening" ></div>
+    </div>
+   
+    <div style="float:left; width:30%; margin:16px">
+        <h1 style="color:steelblue">Prijavljeni korisnici</h1><br/>
+        <div id="posetioci" ></div><br /><br />
+
+    </div>
+    
+    
+</body>
+</html>

@@ -1,0 +1,179 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="Scripts/jquery-3.3.1.js"></script>
+    <link rel="stylesheet" href="Content/bootstrap.css" />
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var jsonString = sessionStorage.getItem('posetilac');
+            var posetilac = JSON.parse(jsonString);
+            if (posetilac !== null) {
+                var idFitnesCentraPrijava = sessionStorage.getItem('idFitnesCentraPrijava');
+
+                $.get("/api/Detalji/GetFCDetaljno", { 'idFitnesCentra': idFitnesCentraPrijava }, function (data, status) {
+                    var detaljniPrikaz = '<h2 style="color:steelblue">Fitnes centar</h2>';
+                    detaljniPrikaz += '<table class="table table-condensed">';
+                    var podaciCentar = '';
+
+                    podaciCentar += '<tr><th>Naziv</th><td>' + data.Naziv + '</td></tr>';
+                    podaciCentar += '<tr><th>Adresa</th><td>' + data.Adresa + '</td></tr>';
+                    podaciCentar += '<tr><th>Godina Otvaranja</th><td>' + data.GodinaOtvaranja + '</td></tr>';
+                    podaciCentar += '<tr><th>Vlasnik </th><td>' + data.VlasnikCentra + '</td></tr>';
+                    podaciCentar += '<tr><th>Cena mesecne clanarine</th><td>' + data.CenaMesecneClanarine + '</td></tr>';
+                    podaciCentar += '<tr><th>Cena godisnje clanarine</th><td>' + data.CenaGodisnjeClanarine + '</td></tr>';
+                    podaciCentar += '<tr><th>Cena jednog treninga</th><td>' + data.CenaJednogTreninga + '</td></tr>';
+                    podaciCentar += '<tr><th>Cena grupnog treninga</th><td>' + data.CenaGrupnogTreninga + '</td></tr>';
+                    podaciCentar += '<tr><th>Cena treninga sa personalnim trenerom</th><td>' + data.CenaTreningaSaPersonalnimTrenerom + '</td></tr>';
+
+
+                    detaljniPrikaz += podaciCentar + "</table><br/><br/>";
+                    $('#fcDetaljno').html(detaljniPrikaz);
+                });
+
+                $.get("/api/Detalji/GetGrupneTreningeInFitnesCentar", { 'idFitnesCentra': idFitnesCentraPrijava }, function (data, status) {
+                    var detaljniTrening = '<h2 style="color:steelblue">Spisak treninga u ovom fitnes centru</h2><table class="table table-condensed" >';
+                    var podaciTrening = '<tr><th>Naziv</th><th>Tip treninga</th>';
+                    podaciTrening += '<th>Trajanje</th><th>Datum</th><th>Maksimalan broj posetilaca</th><th>Ukupan broj prijavljenih posetilaca</th><th>Akcija</th></tr>';
+
+                    for (element in data) {
+                        podaciTrening += '<tr>';
+                        podaciTrening += '<td>' + data[element].Naziv + '</td>';
+                        podaciTrening += '<td>' + data[element].TipTreninga + '</td>';
+                        podaciTrening += '<td>' + data[element].TrajanjeTreninga + '</td>';
+                        podaciTrening += '<td>' + data[element].DatumIVremeTreninga + '</td>';
+                        podaciTrening += '<td>' + data[element].MaxBrojPosetilaca + '</td>';
+                        podaciTrening += '<td>' + data[element].UkupanBrojPosetilaca + '</td>';
+                        podaciTrening += '<td><button class="btnPrijava" name="' + data[element].IdGrupnogTreninga + '">Prijavite se</button>';
+                        podaciTrening += '</tr>';
+                    }
+
+                    detaljniTrening += podaciTrening + "</table><br/><br/>";
+                    $('#treningDetaljno').html(detaljniTrening);
+                });
+
+                $(document).on('click', '.btnPrijava', function () {
+                    var idGrupnogTreninga = $(this).attr('name');
+                    $.ajax({
+                        type: "PUT",
+                        url: "api/Posetilac/AddNewTreningToKorisnik?idGrupnogTreninga=" + idGrupnogTreninga,
+                        success: function (result) {
+                            alert(result);
+                            $(location).attr('href', 'posetilac.html');
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert('Error: ' + xhr.responseText);
+                        }
+                    });
+
+
+                });
+
+                $.get("/api/Detalji/GetKomentareForFitnesCentar", { 'idFitnesCentra': idFitnesCentraPrijava }, function (data, status) {
+                    var podaciKomentar = '';
+
+                    for (element in data) {
+                        podaciKomentar += '<label>' + data[element].ImePosetiocaKomentatora + '</label> <br/>';
+                        podaciKomentar += '<label>Ocena: </label>' + data[element].Ocena + '<br/>';
+                        podaciKomentar += '<textarea style="resize : none" disabled>';
+                        podaciKomentar += data[element].TekstKomentara;
+                        podaciKomentar += '</textarea> <br/><br/>';
+
+                    }
+
+                    $('#komentar').html(podaciKomentar);
+
+                });
+
+                $.get("/api/Detalji/GetKomentareForFitnesCentar", { 'idFitnesCentra': idFitnesCentraPrijava }, function (data, status) {
+                    var podaciKomentar = '';
+
+                    for (element in data) {
+                        podaciKomentar += '<label>' + data[element].ImePosetiocaKomentatora + '</label> <br/>';
+                        podaciKomentar += '<label>Ocena: &nbsp;</label>' + data[element].Ocena + '<br/>';
+                        podaciKomentar += '<textarea style="resize : none" rows="4" cols="50" disabled>';
+                        podaciKomentar += data[element].TekstKomentara;
+                        podaciKomentar += '</textarea> <br/><br/>';
+
+                    }
+
+                    $('#komentar').html(podaciKomentar);
+
+                });
+
+                $('#btnKomentar').click(function () {
+                    var tekstKomentara = $("#txtArea").val();
+                    if (tekstKomentara.length === 0) {
+                        alert('Ne mozete poslati prazan komentar');
+                        return;
+                    }
+                    var ocena = $('input[name = "ocena"]:checked').val();
+
+
+                    $.ajax({
+                        type: "POST",
+                        url: "api/Posetilac/AddKomentar",
+                        data: {
+                            'IdFitnesCentra': idFitnesCentraPrijava,
+                            'TekstKomentara': tekstKomentara,
+                            'Ocena': ocena
+                        },
+                        success: function (result) {
+                            alert("Komentar je dodat");
+                            $(location).attr('href', 'posetilac.html');
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert("Error: " + xhr.responseText);
+                            $(location).attr('href', 'posetilac.html');
+                        }
+                    });
+                });
+
+
+
+
+
+
+
+            }
+            else {
+                alert('Morate se logovati kao posetilac');
+                $(location).attr('href', 'login.html');
+            }
+
+        });
+    </script>
+</head>
+<body>
+    <div class="navbar-collapse collapse" style="background-color:lightgrey; margin:0px">
+        <ul class="nav navbar-nav">
+            <li><a href="posetilac.html" style="color:steelblue">Povratak na pocetnu stranicu</a></li>
+        </ul>
+    </div>
+
+
+    <div style="margin:16px">
+        <div id="fcDetaljno" style="float:left; width:30%"></div>
+        <div id="treningDetaljno" style="float:right; width:65%"></div>
+        <br />
+        <div id="komentar"  class="form-group" style="float:left; width:100%"></div>
+        <br />
+        <div class="form-group" style="float:right; width:100%">
+            <h3>Ostavite komentar</h3>
+            <label for="Ocena">Ostavite ocenu</label>&nbsp;
+            <input type="radio" name="ocena" value="1" checked />&nbsp;1&nbsp;&nbsp;
+            <input type="radio" name="ocena" value="2" />&nbsp;2&nbsp;&nbsp;
+            <input type="radio" name="ocena" value="3" />&nbsp;3&nbsp;&nbsp;
+            <input type="radio" name="ocena" value="4" />&nbsp;4&nbsp;&nbsp;
+            <input type="radio" name="ocena" value="5" />&nbsp;5&nbsp;&nbsp;
+            <br />
+            <label for="Komentar">Tekst komentara</label><br />
+            <textarea id="txtArea" style="resize:none" rows="4" cols="50"></textarea><br><br>
+            <input class="btn-primary" type="button" id="btnKomentar" value="Komentarisite" />
+        </div>
+    </div>
+   
+
+</body>
+</html>

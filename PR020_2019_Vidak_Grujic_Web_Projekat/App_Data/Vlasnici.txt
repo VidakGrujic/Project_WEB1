@@ -1,0 +1,3 @@
+Djole;djolecar;Djordje;Djokic;Muski;djole@gmail.com;20/02/1984;Vlasnik;44445555:11122233;11222333;12121212
+Stojke;stojan;Stojan;Stojanovic;Muski;stole@gmail.com;30/01/1979;Vlasnik;55554444:22221111
+END
