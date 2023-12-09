@@ -1,7 +1,8 @@
 # Project_WEB1
 
 This is a project from the course Programming in WEB 1. This is an online application made for organising and supervising training appointments in gyms.  
-Programing languages: C# (.NET Framework), JQuery(Javascript)
+
+**Programing languages: C# (.NET Framework), JQuery(Javascript)**
 
 ## Description
 
